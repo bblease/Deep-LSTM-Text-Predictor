@@ -16,28 +16,28 @@
 using namespace std;
 
 /* Activation functions */
-double sigmoid(const double& x){
+double sigmoid(double x){
   return 1/(1 + exp(-1 * x));
 }
 
-double deriv_sigmoid(const double& x){
+double deriv_sigmoid(double x){
   return (1 - sigmoid(x)) * sigmoid(x);
 }
 
-double deriv_tanh(const double& x){
+double deriv_tanh(double x){
   return 1 - pow(tanh(x), 2);
 }
 
-double tanh(const double& x){
+double tanh(double x){
   return sinh(x) / cosh(x);
 }
 
-double ReLu(const double& x){
+double ReLu(double x){
   return max(x, 0.0);
 }
 
 //2D vectors passed to constructors are not matricies. 
-//Instead, they provide z i f o information for indeces 0 - 4 
+//Instead, they provide z i f o information for indeces 0 - 3 
 TimeStep::TimeStep(vector<vector<double> > g, 
                    vector<vector<double> > i, 
                    vector<double> o, 
