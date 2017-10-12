@@ -168,6 +168,11 @@ struct Net {
   Output* output;
   std::string* data;
 
+  //network information
+  size_t layer_num;
+  size_t inp_size;
+  size_t node_num;
+
   int block_size;
   bool trained;
 
@@ -192,31 +197,9 @@ std::vector<double> vectorize(char);
 char pick_char(const std::vector<double>&);
 
 char max_pick_char(const std::vector<double>&);
-/*
-//Save the current machine state
-class Write {
-public:
-	std::string read_net(Net* n);
 
-	Write(Net*, string);
+void write_net(Net*, std::string);
 
-	~Write();
-
-private:
-	Net* n_network;
-
-};
-
-//Read machine state from file
-class Read {
-public:
-	Net* read_file();
-
-	Read(string);
-
-	~Read();
-};
-
-*/
+Net* read_net(std::string);
 
 #endif /* core.h */

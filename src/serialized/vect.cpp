@@ -94,7 +94,11 @@ std::vector<double> activate(const std::vector<double>& x, double(*f)(const doub
 }
 
 
+// /* DEPRECATED */
 
+// // 2d vectors have been replaced with matrix class
+
+// /*
 // /* Multiply a 2d matrix and a vector */
 // vector<double> operator*(const vector<vector<double> >& a, const vector<double>& b){
 //   vector<double> out;
@@ -147,8 +151,6 @@ std::vector<double> activate(const std::vector<double>& x, double(*f)(const doub
 //   return out;
 // }
 
-
-
 // /* Take the sum of all rows of a matrix */
 // vector<double> mat_sum(const vector<vector<double> >& a){
 //   vector<double> out;
@@ -177,3 +179,4 @@ std::vector<double> activate(const std::vector<double>& x, double(*f)(const doub
 // vector<double> mult_x(const vector<vector<double> >& a, const vector<double>& b){
 //   return h_prod(mat_sum(a), b);
 // }
+

@@ -16,23 +16,23 @@
 using namespace std;
 
 /* Activation functions */
-double sigmoid(double x){
+double sigmoid(const double& x){
   return 1/(1 + exp(-1 * x));
 }
 
-double deriv_sigmoid(double x){
+double deriv_sigmoid(const double& x){
   return (1 - sigmoid(x)) * sigmoid(x);
 }
 
-double deriv_tanh(double x){
+double deriv_tanh(const double& x){
   return 1 - pow(tanh(x), 2);
 }
 
-double tanh(double x){
+double tanh(const double& x){
   return sinh(x) / cosh(x);
 }
 
-double ReLu(double x){
+double ReLu(const double& x){
   return max(x, 0.0);
 }
 
@@ -175,6 +175,8 @@ h - the output of the block in the forward pass
 err - the gradient calculated from the previous layer
 */
 void Block::backprop(TimeRange* t_store, int block_size, double rate, double lambda){
+
+  //calculate gate and output deltas
   for (int t = t_store->size(id) - 2; t >= 0; t--){
     TimeStep* curr = t_store->get(id, t);
     TimeStep* prev = t_store->get(id, t - 1);
@@ -223,6 +225,7 @@ void Block::backprop(TimeRange* t_store, int block_size, double rate, double lam
 
       del_w = del_w + outer(curr->dels[i], x);
       
+      //if the current timestep is the last in the BPTT block, use the output delta
       if (t < t_store->size(id) - 1)
         del_u = del_u + outer(curr->dels[i], curr->output);
       del_b = del_b + curr->dels[i]; 
@@ -301,10 +304,9 @@ void Net::train(double rate, double lambda, int limit){
 
     //backpropagate throughout the deep layers
     if (i % (int) block_size == 0 && i != 0){
-
       output->backprop(curr, rate, lambda);
-      for (size_t i = block.size() - 1; i >= 0; i--){
-        block[i]->backprop(time_vals, block_size, rate, lambda);
+      for (int k = block.size() - 1; k >= 0; --k){
+        block[k]->backprop(time_vals, block_size, rate, lambda);   
       }
     }
 
@@ -344,9 +346,20 @@ string Net::run(size_t length, string s){
 
 /*
 Create the network of an arbitrary number of blocks
+l - the number of deep layers
 s - dimensionality of input
+n - the number of hidden cells
+b - the number of timesteps for BPTT
 */
-Net::Net(string* i, size_t l, size_t s, size_t n, int b): block_size(b){
+Net::Net(string* i, 
+         size_t l, 
+         size_t s, 
+         size_t n, 
+         int b): 
+         layer_num(l),
+         inp_size(s),
+         node_num(n),
+         block_size(b){
   data = i;
   time_vals = new TimeRange(l, b);
   input = new Input();

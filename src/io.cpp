@@ -5,7 +5,6 @@
  * Description : Create input/ouput for machine
  ******************************************************************************/
 
-
 #include "core.h"
 #include <random>
 #include <algorithm>
