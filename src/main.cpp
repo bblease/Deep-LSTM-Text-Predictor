@@ -11,7 +11,13 @@
 
 using namespace std;
 
-//values
+/*
+default values, assuming text input
+produces a 3 layer-deep network with 95 dimensional one-hot vectors
+BPTT block is set to 100 timesteps
+memory blocks consist of 64 cells (a relatively simple network) for quick training
+64 cells allows for learning word lengths, spacing, and some output
+*/
 #define DEFAULT_HIDDEN_SIZE 64
 #define DEFAULT_LAYER_SIZE 3
 #define DEFAULT_INPUT_SIZE 95
