@@ -93,8 +93,16 @@ void Output::forward(TimeRange* t_store, vector<double>* y){
 
   vector<double> out = vector<double>(inp_size, 0.0);
   Matrix<double> xt = w.h_prod(outer(x, vector<double>(inp_size, 1.0)));
-  out = out + xt.mat_sum_y() + b;
-  out = activate(out / block_num, &sigmoid);
+  vector<double> weighted = xt.mat_sum_y();
+  out = out + weighted + b;
+  //use the softmax for output 
+  //TODO potentially fix for clarity
+  double weighted_sum;
+  for (size_t i = 0; i < weighted.size(); i++)
+    weighted_sum += exp(out[i]);
+  for (size_t i = 0; i < weighted.size(); i++)
+    out[i] = abs(exp(out[i]) / weighted_sum);
+
   o = out;
   //the delta of the final 
   if (y && t_store)
@@ -330,13 +338,16 @@ string Net::run(size_t length, string s){
   string out = s;
   vector<double> curr = vectorize(s[s.length() - 1]);
   //feed the starting string through the network, ignoring output
-  for(size_t i = 0; i < s.length() - 1; i++){
+  input->forward(NULL, vectorize(s[0]), NULL);
+  for(size_t i = 1; i < s.length() - 1; i++){
     input->forward(NULL, vectorize(s[i]), NULL);
+    print_vector(output->o);
   }
 
   while(length-- > 0){
     input->forward(NULL, curr, NULL);
-    char next = pick_char(output->o);
+    
+    char next = max_pick_char(output->o);
     curr = vectorize(next);
     out += next;
   }
