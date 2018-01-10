@@ -1,0 +1,19 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Works in progress and further works in progress
+/saves
+/src/parallelized
+/src/serialized/rw.cpp
+/input
