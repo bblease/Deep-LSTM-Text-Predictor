@@ -28,7 +28,7 @@ double operator*(const std::vector<double>& a, const std::vector<double>& b){
 }
 
 /* Take the sum of a vector */
-double v_sum(std::vector<double> v){
+double v_sum(const std::vector<double>& v){
   double out;
   for (int i = 0; i < v.size(); i++)
     out += v[i];

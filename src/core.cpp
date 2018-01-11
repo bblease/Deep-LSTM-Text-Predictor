@@ -39,11 +39,13 @@ double ReLu(const double& x){
 //2D vectors passed to constructors are not matricies. 
 //Instead, they provide z i f o information for indeces 0 - 3 
 TimeStep::TimeStep(vector<vector<double> > g, 
-                   vector<vector<double> > i, 
+                   vector<vector<double> > i,
+                   vector<double> x,
                    vector<double> o, 
                    vector<double> st, 
                    int n): 
-                   gates(g), 
+                   gates(g),
+                   input(x), 
                    inputs(i), 
                    output(o), 
                    state(st) { 
@@ -143,7 +145,7 @@ void Block::forward(TimeRange* t_store, vector<double>* y){
   vector<double> z_gate = activate(inp_z, &tanh);
   vector<double> i_gate = activate(inp_i, &sigmoid);
   vector<double> f_gate = activate(inp_f, &sigmoid);
-  vector<double> o_gate = activate(inp_o, &sigmoid);
+  vector<double> o_gate = activate(inp_o, &tanh);
 
   state = h_prod(f_gate, state_prev) + h_prod(i_gate, z_gate);
   vector<double> out = h_prod(o_gate, activate(state, &sigmoid));
@@ -158,7 +160,7 @@ void Block::forward(TimeRange* t_store, vector<double>* y){
 
     vector<vector<double> > gates = {z_gate, i_gate, f_gate, o_gate};
     vector<vector<double> > inputs = {inp_z, inp_i, inp_f, inp_o};
-    t_store->push(id, TimeStep(gates, inputs, out, state, block_num));
+    t_store->push(id, TimeStep(gates, inputs, x, out, state, block_num));
 
   }
 
@@ -199,7 +201,7 @@ void Block::backprop(TimeRange* t_store, int block_size, double rate, double lam
                             / block_size;
 
 
-    vector<double> del_o = h_prod(h_prod(del_y, activate(curr->state, &tanh)), activate(curr->inputs[O], &deriv_sigmoid)) / block_size;
+    vector<double> del_o = h_prod(h_prod(del_y, activate(curr->state, &tanh)), activate(curr->inputs[O], &deriv_tanh)) / block_size;
     vector<double> del_c = (h_prod(del_y, h_prod(del_o, activate(curr->state, &deriv_tanh)))
                                  + h_prod(next->dels[C], next->gates[F])) / block_size;
     vector<double> del_f = h_prod(del_c, h_prod(prev->state, activate(curr->inputs[F], &deriv_sigmoid))) / block_size;
@@ -230,12 +232,16 @@ void Block::backprop(TimeRange* t_store, int block_size, double rate, double lam
     //calculate
     for (int t = 0; t < t_store->size(id); t++){
       TimeStep* curr = t_store->get(id, t);
-
-      del_w = del_w + outer(curr->dels[i], x);
+    
+      //update the weights for each gate
+      del_w = del_w + outer(curr->dels[i], curr->input);
       
-      //if the current timestep is the last in the BPTT block, use the output delta
-      if (t < t_store->size(id) - 1)
-        del_u = del_u + outer(curr->dels[i], curr->output);
+      //update the recurrent weights for each gate
+      if (t < t_store->size(id) - 1) {
+        TimeStep* curr_t1 = t_store->get(id, t + 1);
+        del_u = del_u + outer(curr_t1->dels[i], curr->output);
+      }
+      
       del_b = del_b + curr->dels[i]; 
     }
 
@@ -336,19 +342,19 @@ string Net::run(size_t length, string s){
     return "";
   }
   string out = s;
-  vector<double> curr = vectorize(s[s.length() - 1]);
   //feed the starting string through the network, ignoring output
   input->forward(NULL, vectorize(s[0]), NULL);
   for(size_t i = 1; i < s.length() - 1; i++){
     input->forward(NULL, vectorize(s[i]), NULL);
-    print_vector(output->o);
   }
+  vector<double> curr = output->o;
 
   while(length-- > 0){
     input->forward(NULL, curr, NULL);
     
-    char next = max_pick_char(output->o);
+    char next = pick_char(output->o);
     curr = vectorize(next);
+    //print_vector(output->o);
     out += next;
   }
   cout << out << endl;

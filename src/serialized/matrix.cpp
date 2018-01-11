@@ -112,6 +112,13 @@ void Matrix<T>::randomize(){
 }
 
 template <class T>
+void Matrix<T>::print_matrix(){
+	print_vector(_v[0]);
+	std::cout << "..." << std::endl;
+	print_vector(_v[_v.size() - 1]);
+}
+
+template <class T>
 Matrix<T>::Matrix(const std::vector<std::vector<T> >& v): _v(v), _y(v.size()), _x(v[0].size()) { }
 
 template <class T>

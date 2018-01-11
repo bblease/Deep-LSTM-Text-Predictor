@@ -36,6 +36,7 @@ struct TimeStep{
   //n dimensional
   std::vector<std::vector<double> > gates;
   std::vector<std::vector<double> > inputs;
+  std::vector<double> input;
   std::vector<double> output; //output at the current time step
   std::vector<double> state;
   std::vector<std::vector<double> > dels; //z i f o c
@@ -44,7 +45,7 @@ struct TimeStep{
 
   void set_delts(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>);
 
-  TimeStep(std::vector<std::vector<double> >, std::vector<std::vector<double> >, std::vector<double>, std::vector<double>, int);
+  TimeStep(std::vector<std::vector<double> >, std::vector<std::vector<double> >, std::vector<double>, std::vector<double>, std::vector<double>, int);
 
   ~TimeStep() { }
 
@@ -63,6 +64,8 @@ struct TimeRange{
 
   /* Return the pointer of a timestep at index i */
   inline TimeStep* get (int l, int i){
+    if (l >= q.size())
+      return NULL;
     return &(q[l][i]);
   }
 
